@@ -1,7 +1,27 @@
 const { Pool } = require('pg');
 const { v4: uuidv4 } = require('uuid');
 
-const connectionString = process.env.DATABASE_URL;
+let connectionString = process.env.DATABASE_URL;
+
+if (connectionString) {
+  // Replace sslmode=require with sslmode=verify-full to suppress node-postgres SSL warnings
+  connectionString = connectionString.replace('sslmode=require', 'sslmode=verify-full');
+}
+
+if (!connectionString) {
+  console.error('================================================================');
+  console.error('ERROR: DATABASE_URL environment variable is NOT defined!');
+  console.error('Please configure DATABASE_URL in Render\'s Environment tab.');
+  console.error('================================================================');
+} else {
+  try {
+    // Mask password in database URL for safe logging
+    const masked = connectionString.replace(/:([^:@]+)@/, ':******@');
+    console.log(`[Database] Connecting to: ${masked}`);
+  } catch (err) {
+    console.log('[Database] Connecting to database using DATABASE_URL...');
+  }
+}
 
 const pool = new Pool({
   connectionString,
