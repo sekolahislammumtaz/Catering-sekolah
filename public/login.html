@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Halaman Login Administrasi Catering Sekolah">
+  <title>Login - Catering Sekolah</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="css/login.css">
+</head>
+<body>
+  <div class="login-container">
+    <div class="login-card">
+      <div class="brand-header">
+        <div class="brand-logo">
+          <i class="fa-solid fa-utensils"></i>
+        </div>
+        <h1>Catering Sekolah</h1>
+        <p>Sistem Administrasi Katering Siswa</p>
+      </div>
+
+      <div id="alert-box" class="alert hidden">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        <span id="alert-message">Username atau password salah.</span>
+      </div>
+
+      <form id="login-form">
+        <div class="form-group">
+          <label for="username">Nama Pengguna (Username)</label>
+          <div class="input-wrapper">
+            <i class="fa-solid fa-user input-icon"></i>
+            <input type="text" id="username" name="username" placeholder="Masukkan username" required autocomplete="username">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="password">Kata Sandi (Password)</label>
+          <div class="input-wrapper">
+            <i class="fa-solid fa-lock input-icon"></i>
+            <input type="password" id="password" name="password" placeholder="Masukkan password" required autocomplete="current-password">
+            <button type="button" id="toggle-password" class="password-toggle-btn" aria-label="Tampilkan password">
+              <i class="fa-solid fa-eye" id="password-eye-icon"></i>
+            </button>
+          </div>
+        </div>
+
+        <button type="submit" id="login-submit-btn" class="btn btn-primary">
+          <span>Masuk</span>
+          <i class="fa-solid fa-arrow-right-to-bracket"></i>
+        </button>
+      </form>
+
+      <div class="login-footer">
+        <p>&copy; 2026 Catering Sekolah. Hak Cipta Dilindungi.</p>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/login.js"></script>
+</body>
+</html>

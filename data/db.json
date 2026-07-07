@@ -1,0 +1,139 @@
+{
+  "users": [
+    {
+      "id": "1",
+      "username": "mumtaz",
+      "password": "Simumtaz123"
+    },
+    {
+      "id": "cc4726d7-112f-4c21-92f2-d1cf8af158df",
+      "username": "sekolah_a",
+      "password": "NewPassword123"
+    },
+    {
+      "id": "c73010d4-97fa-4985-b7d5-871b27de79ed",
+      "username": "SMPSMANazhirah",
+      "password": "nazhirah123"
+    }
+  ],
+  "students": [
+    {
+      "id": "4adf9095-2f1d-426b-8c22-01ce90bc31e2",
+      "name": "Budi Luhur",
+      "class_name": "Kelas 4-A",
+      "start_date": "2026-07-06",
+      "initial_quota": 5,
+      "catering_dates": [
+        "2026-07-06",
+        "2026-07-07",
+        "2026-07-09",
+        "2026-07-10",
+        "2026-07-13"
+      ],
+      "created_by": "mumtaz",
+      "sick_dates": []
+    },
+    {
+      "id": "00575790-ca95-42ad-bc0a-f35d0b08d74b",
+      "name": "Andi Pratama",
+      "class_name": "Kelas 2-B",
+      "start_date": "2026-07-02",
+      "initial_quota": 3,
+      "catering_dates": [
+        "2026-07-02",
+        "2026-07-03",
+        "2026-07-07"
+      ],
+      "sick_dates": [
+        "2026-07-06"
+      ],
+      "created_by": "mumtaz"
+    },
+    {
+      "id": "c290254f-9891-489c-9f0a-e22abffdcee1",
+      "name": "badrun",
+      "class_name": "7",
+      "start_date": "2026-07-08",
+      "initial_quota": 10,
+      "catering_dates": [
+        "2026-07-09",
+        "2026-07-10",
+        "2026-07-13",
+        "2026-07-14",
+        "2026-07-15",
+        "2026-07-16",
+        "2026-07-17",
+        "2026-07-20",
+        "2026-07-21",
+        "2026-07-22"
+      ],
+      "created_by": "mumtaz",
+      "sick_dates": []
+    },
+    {
+      "id": "86bd2d15-acbf-4e96-9e69-d04a433e0262",
+      "name": "ilhan",
+      "class_name": "8",
+      "start_date": "2026-07-06",
+      "initial_quota": 1,
+      "catering_dates": [
+        "2026-07-06"
+      ],
+      "created_by": "mumtaz",
+      "sick_dates": []
+    },
+    {
+      "id": "d3b9e0bb-550d-45e3-86b7-5cc2e4a87ad7",
+      "name": "Siswa Sekolah A",
+      "class_name": "Kelas 1-A",
+      "start_date": "2026-07-06",
+      "initial_quota": 5,
+      "catering_dates": [
+        "2026-07-06",
+        "2026-07-07",
+        "2026-07-08",
+        "2026-07-09",
+        "2026-07-10"
+      ],
+      "sick_dates": [],
+      "created_by": "sekolah_a"
+    },
+    {
+      "id": "47290dad-d97f-4e09-9248-3f44d7b4a15a",
+      "name": "lala",
+      "class_name": "7",
+      "start_date": "2026-07-03",
+      "initial_quota": 5,
+      "catering_dates": [
+        "2026-07-03",
+        "2026-07-06",
+        "2026-07-07",
+        "2026-07-08",
+        "2026-07-09"
+      ],
+      "sick_dates": [],
+      "created_by": "SMPSMANazhirah"
+    },
+    {
+      "id": "d47b38eb-3fe7-469b-98a8-b934ec134688",
+      "name": "kiki",
+      "class_name": "7",
+      "start_date": "2026-07-07",
+      "initial_quota": 2,
+      "catering_dates": [
+        "2026-07-07",
+        "2026-07-08"
+      ],
+      "sick_dates": [],
+      "created_by": "SMPSMANazhirah"
+    }
+  ],
+  "holidays": [
+    {
+      "id": "11a80e13-24e9-4625-8b3e-c509c282d92b",
+      "date": "2026-07-08",
+      "description": "Tahun Baru Islam",
+      "created_by": "mumtaz"
+    }
+  ]
+}

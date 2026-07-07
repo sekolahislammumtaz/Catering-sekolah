@@ -1,0 +1,260 @@
+/* Design System Variables */
+:root {
+  --color-bg: #060e1c;
+  --color-card-bg: rgba(13, 29, 58, 0.85);
+  --color-card-border: rgba(212, 175, 55, 0.25);
+  --color-card-border-focus: rgba(212, 175, 55, 0.8);
+  
+  --color-text-main: #f0f4f9;
+  --color-text-muted: #8fa0b5;
+  
+  /* Navy Brand Shades */
+  --color-navy-dark: #081225;
+  --color-navy-medium: #0d2142;
+  --color-navy-light: #183360;
+  
+  /* Gold Accent Shades */
+  --color-gold: #e2c050;
+  --color-gold-hover: #f0d56e;
+  --color-gold-dark: #a8831c;
+  --color-gold-glow: rgba(226, 192, 80, 0.15);
+  
+  /* Status Colors */
+  --color-error: #ef4444;
+  --color-error-bg: rgba(239, 68, 68, 0.1);
+  --color-error-border: rgba(239, 68, 68, 0.3);
+  
+  --font-family: 'Outfit', sans-serif;
+}
+
+/* Reset & Global */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-family);
+  background: radial-gradient(circle at center, var(--color-navy-light) 0%, var(--color-bg) 100%);
+  color: var(--color-text-main);
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/* Login Container */
+.login-container {
+  width: 100%;
+  max-width: 440px;
+  padding: 20px;
+  z-index: 10;
+}
+
+/* Glassmorphism Card */
+.login-card {
+  background: var(--color-card-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--color-card-border);
+  border-radius: 20px;
+  padding: 40px 30px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5), 0 0 30px var(--color-gold-glow);
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.login-card:hover {
+  border-color: rgba(212, 175, 55, 0.4);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), 0 0 40px rgba(226, 192, 80, 0.25);
+}
+
+/* Brand Header */
+.brand-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.brand-logo {
+  width: 70px;
+  height: 70px;
+  background: linear-gradient(135deg, var(--color-navy-medium) 0%, var(--color-navy-dark) 100%);
+  border: 2px solid var(--color-gold);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 15px;
+  box-shadow: 0 0 15px var(--color-gold-glow);
+}
+
+.brand-logo i {
+  color: var(--color-gold);
+  font-size: 30px;
+}
+
+.brand-header h1 {
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: var(--color-text-main);
+  margin-bottom: 6px;
+  background: linear-gradient(135deg, #ffffff 40%, var(--color-gold) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.brand-header p {
+  font-size: 14px;
+  color: var(--color-text-muted);
+}
+
+/* Form Styling */
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+
+.input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-icon {
+  position: absolute;
+  left: 15px;
+  color: var(--color-text-muted);
+  font-size: 16px;
+  transition: color 0.3s ease;
+}
+
+input {
+  width: 100%;
+  padding: 14px 45px 14px 45px;
+  background: rgba(8, 18, 37, 0.6);
+  border: 1.5px solid rgba(143, 160, 181, 0.2);
+  border-radius: 10px;
+  color: var(--color-text-main);
+  font-size: 15px;
+  font-family: var(--font-family);
+  outline: none;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+}
+
+input:focus {
+  border-color: var(--color-gold);
+  background: rgba(8, 18, 37, 0.9);
+  box-shadow: 0 0 10px rgba(226, 192, 80, 0.15);
+}
+
+input:focus + .input-icon {
+  color: var(--color-gold);
+}
+
+/* Password Toggle */
+.password-toggle-btn {
+  position: absolute;
+  right: 15px;
+  background: none;
+  border: none;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  font-size: 16px;
+  padding: 4px;
+  transition: color 0.3s ease;
+}
+
+.password-toggle-btn:hover {
+  color: var(--color-gold);
+}
+
+/* Alert Box */
+.alert {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 13.5px;
+  background: var(--color-error-bg);
+  border: 1px solid var(--color-error-border);
+  color: var(--color-error);
+  margin-bottom: 20px;
+  animation: slideIn 0.3s ease;
+}
+
+.alert.hidden {
+  display: none !important;
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 14px;
+  font-size: 15px;
+  font-weight: 600;
+  font-family: var(--font-family);
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--color-gold) 0%, var(--color-gold-dark) 100%);
+  color: #081225;
+  box-shadow: 0 4px 15px rgba(226, 192, 80, 0.3);
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, var(--color-gold-hover) 0%, var(--color-gold) 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(226, 192, 80, 0.45);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+/* Footer */
+.login-footer {
+  margin-top: 30px;
+  text-align: center;
+}
+
+.login-footer p {
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+/* Animations */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

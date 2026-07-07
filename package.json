@@ -1,0 +1,16 @@
+{
+  "name": "catering-sekolah",
+  "version": "1.0.0",
+  "description": "Aplikasi Administrasi Catering Sekolah",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "cookie-parser": "^1.4.6",
+    "express": "^4.19.2",
+    "pg": "^8.22.0",
+    "uuid": "^9.0.1"
+  }
+}

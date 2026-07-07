@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Dashboard Administrasi Catering Sekolah">
+  <title>Catering Sekolah - Admin Dashboard</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+  <div class="app-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="brand">
+          <i class="fa-solid fa-utensils logo-icon"></i>
+          <div>
+            <h2>Catering</h2>
+            <span>Sekolah</span>
+          </div>
+        </div>
+      </div>
+      
+      <nav class="sidebar-nav">
+        <ul>
+          <li>
+            <a href="#" class="nav-item active" data-target="dashboard-section" id="nav-dashboard">
+              <i class="fa-solid fa-chart-pie"></i>
+              <span>Dashboard</span>
+            </a>
+          </li>
+          <li>
+            <a href="#" class="nav-item" data-target="students-section" id="nav-students">
+              <i class="fa-solid fa-user-group"></i>
+              <span>Siswa Catering</span>
+            </a>
+          </li>
+          <li>
+            <a href="#" class="nav-item" data-target="holidays-section" id="nav-holidays">
+              <i class="fa-solid fa-calendar-xmark"></i>
+              <span>Tanggal Merah</span>
+            </a>
+          </li>
+          <li id="nav-users-wrapper" class="hidden">
+            <a href="#" class="nav-item" data-target="users-section" id="nav-users">
+              <i class="fa-solid fa-users-gear"></i>
+              <span>Manajemen User</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="user-profile">
+          <div class="avatar">M</div>
+          <div class="user-info">
+            <span class="user-name" id="admin-name">mumtaz</span>
+            <span class="user-role">Administrator</span>
+          </div>
+        </div>
+        <button id="logout-btn" class="logout-btn" title="Keluar">
+          <i class="fa-solid fa-arrow-right-from-bracket"></i>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <!-- Topbar Header -->
+      <header class="topbar">
+        <div class="topbar-title">
+          <h1 id="section-title">Dashboard Summary</h1>
+          <p id="section-subtitle">Informasi administrasi katering hari ini.</p>
+        </div>
+        
+        <div class="topbar-actions">
+          <div class="date-badge">
+            <i class="fa-regular fa-calendar"></i>
+            <span id="current-date-text">Senin, 6 Juli 2026</span>
+          </div>
+          
+          <!-- Notification Bell -->
+          <div class="notification-wrapper">
+            <button id="notification-bell" class="notification-bell" aria-label="Notifikasi">
+              <i class="fa-regular fa-bell"></i>
+              <span id="notification-badge" class="badge hidden">0</span>
+            </button>
+            
+            <div id="notification-dropdown" class="notification-dropdown hidden">
+              <div class="dropdown-header">
+                <h3>Notifikasi Kuota</h3>
+                <button id="clear-notifications" class="clear-btn">Tutup</button>
+              </div>
+              <div id="notification-list" class="notification-list">
+                <!-- Notifications loaded here -->
+                <p class="empty-state">Tidak ada notifikasi kuota kritis.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Content Container -->
+      <div class="content-container">
+        
+        <!-- SECTION: DASHBOARD SUMMARY -->
+        <section id="dashboard-section" class="tab-content active">
+          <!-- Stats Summary Cards -->
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-icon bg-navy-light">
+                <i class="fa-solid fa-graduation-cap text-gold"></i>
+              </div>
+              <div class="stat-details">
+                <h3>Total Siswa</h3>
+                <span class="stat-number" id="stat-total-students">0</span>
+              </div>
+            </div>
+            
+            <div class="stat-card">
+              <div class="stat-icon bg-navy-light">
+                <i class="fa-solid fa-circle-check text-green"></i>
+              </div>
+              <div class="stat-details">
+                <h3>Aktif</h3>
+                <span class="stat-number text-green" id="stat-active-students">0</span>
+              </div>
+            </div>
+
+            <div class="stat-card alert-status">
+              <div class="stat-icon bg-navy-light">
+                <i class="fa-solid fa-triangle-exclamation text-gold"></i>
+              </div>
+              <div class="stat-details">
+                <h3>Kuota Kritis (1-2)</h3>
+                <span class="stat-number text-gold" id="stat-low-quota">0</span>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-icon bg-navy-light">
+                <i class="fa-solid fa-circle-xmark text-muted"></i>
+              </div>
+              <div class="stat-details">
+                <h3>Kuota Habis</h3>
+                <span class="stat-number text-muted" id="stat-expired-quota">0</span>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-icon bg-navy-light">
+                <i class="fa-solid fa-utensils text-gold"></i>
+              </div>
+              <div class="stat-details">
+                <h3>Total Kuota Mingguan</h3>
+                <span class="stat-number text-gold" id="stat-weekly-catering">0</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="dashboard-row">
+            <!-- Low Quota Alert Panel -->
+            <div class="panel main-panel">
+              <div class="panel-header">
+                <h2><i class="fa-solid fa-bell text-gold"></i> Siswa Kuota Kritis</h2>
+                <p>Memerlukan tindakan transfer/perpanjangan jangka waktu katering segera.</p>
+              </div>
+              <div class="panel-body">
+                <div class="table-responsive">
+                  <table class="data-table">
+                    <thead>
+                      <tr>
+                        <th>Nama Siswa</th>
+                        <th>Kelas</th>
+                        <th>Sisa Kuota</th>
+                        <th>Tindakan</th>
+                      </tr>
+                    </thead>
+                    <tbody id="low-quota-students-table">
+                      <!-- Loaded via JS -->
+                      <tr>
+                        <td colspan="4" class="text-center text-muted">Memuat data...</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <!-- Quick Holidays Panel -->
+            <div class="panel side-panel">
+              <div class="panel-header">
+                <h2><i class="fa-solid fa-calendar-day text-gold"></i> Hari Libur Mendatang</h2>
+                <p>Tanggal merah dalam waktu dekat.</p>
+              </div>
+              <div class="panel-body">
+                <div class="holiday-mini-list" id="mini-holidays-list">
+                  <!-- Loaded via JS -->
+                  <p class="text-center text-muted">Memuat data...</p>
+                </div>
+                <button class="btn btn-secondary btn-full btn-sm margin-top-15" id="go-to-holidays-btn">
+                  Kelola Hari Libur
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="dashboard-row margin-top-30">
+            <!-- Weekly Catering Quota Panel -->
+            <div class="panel main-panel">
+              <div class="panel-header">
+                <h2><i class="fa-solid fa-calendar-week text-gold"></i> Jadwal Catering Minggu Ini (Semua Siswa)</h2>
+                <p>Total porsi catering seluruh siswa per hari untuk minggu ini (Senin - Jumat).</p>
+              </div>
+              <div class="panel-body">
+                <div class="table-responsive">
+                  <table class="data-table">
+                    <thead>
+                      <tr>
+                        <th>Hari</th>
+                        <th>Tanggal</th>
+                        <th>Status</th>
+                        <th>Jumlah Porsi</th>
+                        <th>Daftar Siswa</th>
+                      </tr>
+                    </thead>
+                    <tbody id="weekly-catering-table-body">
+                      <!-- Loaded via JS -->
+                      <tr>
+                        <td colspan="5" class="text-center text-muted">Memuat data...</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+
+        <!-- SECTION: STUDENTS MANAGEMENT -->
+        <section id="students-section" class="tab-content">
+          <div class="action-bar">
+            <div class="search-filters">
+              <div class="search-input-wrapper">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="search-student" placeholder="Cari nama siswa atau kelas...">
+              </div>
+              <select id="filter-status">
+                <option value="all">Semua Status Kuota</option>
+                <option value="active">Kuota Aktif</option>
+                <option value="low">Kuota Kritis (1-2 Hari)</option>
+                <option value="expired">Kuota Habis</option>
+              </select>
+            </div>
+            
+            <button class="btn btn-primary" id="add-student-btn">
+              <i class="fa-solid fa-user-plus"></i>
+              <span>Tambah Catering Siswa</span>
+            </button>
+          </div>
+
+          <div class="panel">
+            <div class="panel-body">
+              <div class="table-responsive">
+                <table class="data-table" id="students-table">
+                  <thead>
+                    <tr>
+                      <th>Nama Siswa</th>
+                      <th>Kelas</th>
+                      <th>Tanggal Mulai</th>
+                      <th>Tanggal Berakhir</th>
+                      <th>Kuota Awal</th>
+                      <th>Sisa Kuota</th>
+                      <th>Status</th>
+                      <th>Kalender</th>
+                      <th>Aksi</th>
+                    </tr>
+                  </thead>
+                  <tbody id="students-table-body">
+                    <!-- Dynamic -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+
+
+        <!-- SECTION: HOLIDAYS MANAGEMENT -->
+        <section id="holidays-section" class="tab-content">
+          <div class="dashboard-row">
+            <!-- Add Holiday Form -->
+            <div class="panel form-panel">
+              <div class="panel-header">
+                <h2>Tambah Hari Libur (Tanggal Merah)</h2>
+                <p>Hari libur Senin-Jumat tidak akan memotong kuota catering siswa.</p>
+              </div>
+              <div class="panel-body">
+                <form id="holiday-form">
+                  <div class="form-group">
+                    <label for="holiday-date">Tanggal Libur</label>
+                    <input type="date" id="holiday-date" required>
+                    <small class="text-muted">Hanya hari Senin sampai Jumat.</small>
+                  </div>
+                  <div class="form-group">
+                    <label for="holiday-desc">Keterangan Libur</label>
+                    <input type="text" id="holiday-desc" placeholder="Contoh: Hari Raya Idul Fitri" required>
+                  </div>
+                  
+                  <button type="submit" class="btn btn-primary btn-full">
+                    <i class="fa-solid fa-calendar-plus"></i>
+                    <span>Simpan Hari Libur</span>
+                  </button>
+                </form>
+              </div>
+            </div>
+
+            <!-- Holidays List -->
+            <div class="panel list-panel flex-1">
+              <div class="panel-header">
+                <h2>Daftar Tanggal Merah</h2>
+                <p>Katering siswa otomatis digeser melewati tanggal-tanggal berikut.</p>
+              </div>
+              <div class="panel-body">
+                <div class="table-responsive">
+                  <table class="data-table">
+                    <thead>
+                      <tr>
+                        <th>Tanggal</th>
+                        <th>Keterangan</th>
+                        <th>Hari</th>
+                        <th>Aksi</th>
+                      </tr>
+                    </thead>
+                    <tbody id="holidays-table-body">
+                      <!-- Dynamic -->
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- SECTION: USER MANAGEMENT -->
+        <section id="users-section" class="tab-content">
+          <div class="dashboard-row">
+            <!-- Add User Form -->
+            <div class="panel form-panel">
+              <div class="panel-header">
+                <h2>Tambah User Baru (Sekolah Baru)</h2>
+                <p>Setiap user admin mengelola data siswa catering secara terpisah.</p>
+              </div>
+              <div class="panel-body">
+                <form id="user-form">
+                  <div class="form-group">
+                    <label for="new-username">Username Admin</label>
+                    <input type="text" id="new-username" placeholder="Contoh: sd_angkasa" required>
+                  </div>
+                  <div class="form-group">
+                    <label for="new-password">Password Awal</label>
+                    <div style="position: relative;">
+                      <input type="password" id="new-password" placeholder="Password minimal 6 karakter" required style="padding-right: 40px;">
+                      <button type="button" id="toggle-new-password" class="password-toggle-btn" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--color-gold); cursor: pointer;">
+                        <i class="fa-regular fa-eye"></i>
+                      </button>
+                    </div>
+                  </div>
+                  
+                  <button type="submit" class="btn btn-primary btn-full">
+                    <i class="fa-solid fa-user-plus"></i>
+                    <span>Simpan User Baru</span>
+                  </button>
+                </form>
+              </div>
+            </div>
+
+            <!-- Users List -->
+            <div class="panel list-panel flex-1">
+              <div class="panel-header">
+                <h2>Daftar User Admin</h2>
+                <p>Mengelola user admin sekolah dan mengatur ulang kata sandi.</p>
+              </div>
+              <div class="panel-body">
+                <div class="table-responsive">
+                  <table class="data-table">
+                    <thead>
+                      <tr>
+                        <th>Username</th>
+                        <th>User ID</th>
+                        <th>Aksi</th>
+                      </tr>
+                    </thead>
+                    <tbody id="users-table-body">
+                      <!-- Dynamic -->
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- MODAL: ADD / EDIT STUDENT CATERING -->
+  <div id="student-modal" class="modal-overlay hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2 id="modal-title">Tambah Catering Siswa</h2>
+        <button class="modal-close-btn" id="close-student-modal">&times;</button>
+      </div>
+      <form id="student-form">
+        <input type="hidden" id="student-id">
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="student-name">Nama Siswa</label>
+            <input type="text" id="student-name" placeholder="Nama lengkap siswa" required>
+          </div>
+          <div class="form-group">
+            <label for="student-class">Kelas</label>
+            <input type="text" id="student-class" placeholder="Contoh: Kelas 1-A, Kelas 5" required>
+          </div>
+          <div class="form-group">
+            <label for="student-start-date">Tanggal Mulai Catering</label>
+            <input type="date" id="student-start-date" required>
+          </div>
+          <div class="form-group">
+            <label for="student-quota">Kuota Catering (dalam hari)</label>
+            <input type="number" id="student-quota" min="1" placeholder="Jumlah hari catering" required>
+            <small class="text-muted">Hanya hari sekolah (Senin - Jumat) yang memotong kuota.</small>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="cancel-student-modal">Batal</button>
+          <button type="submit" class="btn btn-primary" id="save-student-btn">Simpan</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: CALENDAR VIEW -->
+  <div id="calendar-modal" class="modal-overlay hidden">
+    <div class="modal-card modal-large">
+      <div class="modal-header">
+        <div>
+          <h2 id="cal-student-name">Nama Siswa</h2>
+          <p class="text-muted" id="cal-student-info">Kelas - Kuota: 0 Hari</p>
+        </div>
+        <button class="modal-close-btn" id="close-calendar-modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <!-- Legend -->
+        <div class="calendar-legend">
+          <div class="legend-item"><span class="legend-color bg-navy"></span> Hari Katering Aktif</div>
+          <div class="legend-item"><span class="legend-color bg-faded-navy"></span> Katering Selesai (Lalu)</div>
+          <div class="legend-item"><span class="legend-color bg-gold"></span> Hari Ini</div>
+          <div class="legend-item"><span class="legend-color bg-red"></span> Tanggal Merah</div>
+          <div class="legend-item"><span class="legend-color bg-orange"></span> Siswa Tidak Masuk</div>
+          <div class="legend-item"><span class="legend-color bg-grey"></span> Akhir Pekan (Libur)</div>
+        </div>
+
+        <div id="calendar-view-container" class="calendar-view-container">
+          <!-- Calendar months rendered here dynamically -->
+        </div>
+
+        <div id="calendar-sick-section" class="margin-top-15 hidden" style="border-top: 1px solid rgba(212, 175, 55, 0.15); padding-top: 20px;">
+          <h3>Daftar Riwayat Tidak Masuk Siswa</h3>
+          <p class="text-muted" style="font-size: 12px; margin-bottom: 10px;">Tanggal tidak masuk di bawah tidak memotong kuota catering dan menggeser masa aktif catering.</p>
+          <div id="calendar-sick-list" class="holiday-mini-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px;">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="close-calendar-modal-btn">Tutup</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: MARK SICK -->
+  <div id="sick-modal" class="modal-overlay hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2>Tandai Siswa Tidak Masuk</h2>
+        <button class="modal-close-btn" id="close-sick-modal">&times;</button>
+      </div>
+      <form id="sick-form">
+        <input type="hidden" id="sick-student-id">
+        <div class="modal-body">
+          <p class="text-muted" style="margin-bottom: 15px;">Siswa tidak akan dikurangi kuota cateringnya pada tanggal tidak masuk ini. Kuota catering otomatis digeser bertambah 1 hari sekolah ke depan.</p>
+          <div class="form-group">
+            <label for="sick-date">Pilih Tanggal Tidak Masuk</label>
+            <input type="date" id="sick-date" required>
+            <small class="text-muted">Hanya hari sekolah (Senin - Jumat).</small>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="cancel-sick-modal">Batal</button>
+          <button type="submit" class="btn btn-primary" id="save-sick-btn">Simpan</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: RESET PASSWORD -->
+  <div id="reset-password-modal" class="modal-overlay hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2>Reset Password User</h2>
+        <button class="modal-close-btn" id="close-reset-modal">&times;</button>
+      </div>
+      <form id="reset-password-form">
+        <input type="hidden" id="reset-user-id">
+        <div class="modal-body">
+          <p class="text-muted" style="margin-bottom: 15px;">Ubah kata sandi untuk user admin <strong id="reset-username-label">...</strong>.</p>
+          <div class="form-group">
+            <label for="reset-password">Kata Sandi Baru</label>
+            <div style="position: relative;">
+              <input type="password" id="reset-password" placeholder="Masukkan kata sandi baru" required style="padding-right: 40px;">
+              <button type="button" id="toggle-reset-password" class="password-toggle-btn" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--color-gold); cursor: pointer;">
+                <i class="fa-regular fa-eye"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="cancel-reset-modal">Batal</button>
+          <button type="submit" class="btn btn-primary">Simpan Sandi Baru</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Global scripts -->
+  <script src="js/api.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

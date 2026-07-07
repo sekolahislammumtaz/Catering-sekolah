@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: catering-sekolah
+    env: node
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false
+        placeholder: "Enter your Neon PostgreSQL connection string (postgresql://...)"
