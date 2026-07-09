@@ -103,6 +103,33 @@ async function refreshData() {
   }
 }
 
+// Refresh data silently to keep local state synced
+async function refreshDataSilently() {
+  try {
+    const promises = [
+      API.getStudents(),
+      API.getHolidays(),
+      API.getSummary()
+    ];
+    
+    if (state.user && state.user.toLowerCase() === 'mumtaz') {
+      promises.push(API.getUsers());
+    }
+    
+    const results = await Promise.all(promises);
+    
+    state.students = results[0];
+    state.holidays = results[1];
+    state.summary = results[2];
+    
+    if (state.user && state.user.toLowerCase() === 'mumtaz') {
+      state.users = results[3] || [];
+    }
+  } catch (e) {
+    console.error('Silent refresh failed:', e);
+  }
+}
+
 // Set up UI listeners
 function setupEventListeners() {
   // Logout
@@ -166,6 +193,7 @@ function setupEventListeners() {
     if (mode === 'add') {
       document.getElementById('modal-title').textContent = 'Tambah Catering Siswa';
       document.getElementById('student-id').value = '';
+      document.getElementById('student-parent-whatsapp').value = '';
       // Default start date to today's school date (formatted local YYYY-MM-DD)
       const now = new Date();
       const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
@@ -175,6 +203,7 @@ function setupEventListeners() {
       document.getElementById('student-id').value = student.id;
       document.getElementById('student-name').value = student.name;
       document.getElementById('student-class').value = student.class_name;
+      document.getElementById('student-parent-whatsapp').value = student.parent_whatsapp || '';
       document.getElementById('student-start-date').value = student.start_date;
       document.getElementById('student-quota').value = student.initial_quota;
     }
@@ -189,16 +218,83 @@ function setupEventListeners() {
     if (e.target === studentModal) studentModal.classList.add('hidden');
   });
 
+  // Autocomplete student history
+  const nameInput = document.getElementById('student-name');
+  const autocompleteList = document.getElementById('autocomplete-list');
+  
+  const closeAutocomplete = () => {
+    autocompleteList.classList.add('hidden');
+    autocompleteList.innerHTML = '';
+  };
+
+  nameInput.addEventListener('input', () => {
+    const query = nameInput.value.toLowerCase().trim();
+    if (!query) {
+      closeAutocomplete();
+      return;
+    }
+
+    // Get unique students history
+    const history = [];
+    const namesSeen = new Set();
+    const sorted = [...(state.students || [])].sort((a, b) => b.start_date.localeCompare(a.start_date));
+    sorted.forEach(s => {
+      const lowerName = s.name.toLowerCase().trim();
+      if (!namesSeen.has(lowerName)) {
+        namesSeen.add(lowerName);
+        history.push({
+          name: s.name,
+          class_name: s.class_name,
+          parent_whatsapp: s.parent_whatsapp || ''
+        });
+      }
+    });
+
+    // Filter by query
+    const matches = history.filter(s => s.name.toLowerCase().includes(query));
+    if (matches.length === 0) {
+      closeAutocomplete();
+      return;
+    }
+
+    autocompleteList.innerHTML = '';
+    matches.forEach(match => {
+      const item = document.createElement('div');
+      item.className = 'autocomplete-item';
+      item.innerHTML = `
+        <strong>${escapeHTML(match.name)}</strong>
+        <span>Kelas: ${escapeHTML(match.class_name)} • WA: ${escapeHTML(match.parent_whatsapp || '-')}</span>
+      `;
+      item.addEventListener('click', () => {
+        nameInput.value = match.name;
+        document.getElementById('student-class').value = match.class_name;
+        document.getElementById('student-parent-whatsapp').value = match.parent_whatsapp;
+        closeAutocomplete();
+      });
+      autocompleteList.appendChild(item);
+    });
+
+    autocompleteList.classList.remove('hidden');
+  });
+
+  // Close autocomplete on click outside
+  document.addEventListener('click', (e) => {
+    if (e.target !== nameInput && !autocompleteList.contains(e.target)) {
+      closeAutocomplete();
+    }
+  });
+
   // Student Form Submit
   studentForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const id = document.getElementById('student-id').value;
-    const name = document.getElementById('student-name').value.trim();
+    const name = nameInput.value.trim();
     const class_name = document.getElementById('student-class').value.trim();
+    const parent_whatsapp = document.getElementById('student-parent-whatsapp').value.trim();
     const start_date = document.getElementById('student-start-date').value;
     const initial_quota = parseInt(document.getElementById('student-quota').value);
 
-    const studentData = { name, class_name, start_date, initial_quota };
+    const studentData = { name, class_name, start_date, initial_quota, parent_whatsapp };
 
     try {
       if (id) {
@@ -451,8 +547,19 @@ function renderDashboardSummary() {
     summary.lowQuotaStudents.forEach(student => {
       const tr = document.createElement('tr');
       
-      const badgeClass = student.remaining_quota === 2 ? 'low' : 'expired'; // if 1 or 2, it is critical
       const sisaText = `${student.remaining_quota} Hari`;
+      
+      let waButton = '';
+      if (student.remaining_quota === 1) {
+        const btnClass = student.whatsapp_sent ? 'btn-wa-success' : 'btn-wa-danger';
+        const btnIcon = student.whatsapp_sent ? 'fa-solid fa-circle-check' : 'fa-brands fa-whatsapp';
+        const btnText = student.whatsapp_sent ? 'WA Terkirim' : 'Kirim WA';
+        waButton = `
+          <button class="btn ${btnClass} btn-sm send-wa-btn" data-id="${student.id}" data-name="${escapeHTML(student.name)}" data-phone="${escapeHTML(student.parent_whatsapp)}" title="Kirim notifikasi WhatsApp ke orang tua">
+            <i class="${btnIcon}"></i> ${btnText}
+          </button>
+        `;
+      }
       
       tr.innerHTML = `
         <td><strong>${escapeHTML(student.name)}</strong></td>
@@ -461,9 +568,12 @@ function renderDashboardSummary() {
           <span class="status-badge low">${sisaText}</span>
         </td>
         <td>
-          <button class="btn btn-secondary btn-sm edit-quota-btn" data-id="${student.id}">
-            <i class="fa-solid fa-plus-minus"></i> Edit Kuota
-          </button>
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <button class="btn btn-secondary btn-sm edit-quota-btn" data-id="${student.id}">
+              <i class="fa-solid fa-plus-minus"></i> Edit Kuota
+            </button>
+            ${waButton}
+          </div>
         </td>
       `;
       tableBody.appendChild(tr);
@@ -482,8 +592,58 @@ function renderDashboardSummary() {
           document.getElementById('student-id').value = student.id;
           document.getElementById('student-name').value = student.name;
           document.getElementById('student-class').value = student.class_name;
+          document.getElementById('student-parent-whatsapp').value = student.parent_whatsapp || '';
           document.getElementById('student-start-date').value = student.start_date;
           document.getElementById('student-quota').value = student.initial_quota;
+        }
+      });
+    });
+
+    // Add handlers to send wa buttons
+    tableBody.querySelectorAll('.send-wa-btn').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const studentId = btn.getAttribute('data-id');
+        const studentName = btn.getAttribute('data-name');
+        const parentPhone = btn.getAttribute('data-phone');
+        
+        if (!parentPhone) {
+          alert('Nomor WhatsApp orang tua tidak terdaftar untuk siswa ini! Silakan edit siswa untuk menambahkan nomor WhatsApp.');
+          return;
+        }
+
+        // Format phone number
+        let cleanPhone = parentPhone.replace(/\D/g, '');
+        if (cleanPhone.startsWith('0')) {
+          cleanPhone = '62' + cleanPhone.slice(1);
+        }
+        if (!cleanPhone.startsWith('62') && cleanPhone.length > 0) {
+          cleanPhone = '62' + cleanPhone;
+        }
+
+        // Template text
+        const templateText = `Bismillah
+Assalamu'alaikum Ayah/Bunda dari ananda ${studentName}.
+
+Kami informasikan terkait Catering Sekolah ananda hari ini adalah yang terakhir.
+jika Ayah/Bunda mau melanjutkan Catering Sekolah, diharapkan Ayah/Bunda kembali melakukan pembayaran Catering Sekolah melalui QRIS yang kami kirimkan dibawah.
+
+Demikian informasi yang kami sampaikan.
+Jazaakumullahu Khairan`;
+
+        const waUrl = `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(templateText)}`;
+        
+        // Open WhatsApp in new tab
+        window.open(waUrl, '_blank');
+
+        // Mark as sent in DB & update UI
+        try {
+          await API.markWhatsAppSent(studentId);
+          btn.className = 'btn btn-wa-success btn-sm send-wa-btn';
+          btn.innerHTML = '<i class="fa-solid fa-circle-check"></i> WA Terkirim';
+          // Update local state silently
+          await refreshDataSilently();
+        } catch (err) {
+          console.error('Gagal memperbarui status WhatsApp:', err);
         }
       });
     });
@@ -705,6 +865,7 @@ function renderStudentList() {
         document.getElementById('student-id').value = student.id;
         document.getElementById('student-name').value = student.name;
         document.getElementById('student-class').value = student.class_name;
+        document.getElementById('student-parent-whatsapp').value = student.parent_whatsapp || '';
         document.getElementById('student-start-date').value = student.start_date;
         document.getElementById('student-quota').value = student.initial_quota;
       }

@@ -82,6 +82,12 @@ const API = {
     });
   },
 
+  async markWhatsAppSent(id) {
+    return this.request(`/api/students/${id}/whatsapp-sent`, {
+      method: 'POST'
+    });
+  },
+
   // Holiday operations
   async getHolidays() {
     return this.request('/api/holidays');

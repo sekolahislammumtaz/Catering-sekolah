@@ -129,9 +129,9 @@ app.get('/api/students', requireLogin, async (req, res) => {
 });
 
 app.post('/api/students', requireLogin, async (req, res) => {
-  const { name, class_name, start_date, initial_quota } = req.body;
+  const { name, class_name, start_date, initial_quota, parent_whatsapp } = req.body;
   
-  if (!name || !class_name || !start_date || !initial_quota) {
+  if (!name || !class_name || !start_date || !initial_quota || !parent_whatsapp) {
     return res.status(400).json({ success: false, message: 'Semua field wajib diisi' });
   }
   
@@ -140,7 +140,7 @@ app.post('/api/students', requireLogin, async (req, res) => {
   }
   
   try {
-    const student = await db.addStudent(name, class_name, start_date, initial_quota, req.user.username);
+    const student = await db.addStudent(name, class_name, start_date, initial_quota, parent_whatsapp, req.user.username);
     res.status(201).json({ success: true, student });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Gagal menambahkan siswa: ' + error.message });
@@ -149,7 +149,7 @@ app.post('/api/students', requireLogin, async (req, res) => {
 
 app.put('/api/students/:id', requireLogin, async (req, res) => {
   const { id } = req.params;
-  const { name, class_name, start_date, initial_quota } = req.body;
+  const { name, class_name, start_date, initial_quota, parent_whatsapp } = req.body;
   
   try {
     const student = await db.getStudentById(id);
@@ -160,7 +160,7 @@ app.put('/api/students/:id', requireLogin, async (req, res) => {
       return res.status(403).json({ success: false, message: 'Akses ditolak. Siswa ini milik sekolah lain.' });
     }
     
-    const updated = await db.updateStudent(id, { name, class_name, start_date, initial_quota });
+    const updated = await db.updateStudent(id, { name, class_name, start_date, initial_quota, parent_whatsapp });
     res.json({ success: true, student: updated });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Gagal mengedit siswa: ' + error.message });
@@ -238,6 +238,25 @@ app.delete('/api/students/:id/sick/:date', requireLogin, async (req, res) => {
     }
   } catch (error) {
     res.status(500).json({ success: false, message: 'Gagal menghapus catatan tidak masuk: ' + error.message });
+  }
+});
+
+app.post('/api/students/:id/whatsapp-sent', requireLogin, async (req, res) => {
+  const { id } = req.params;
+  
+  try {
+    const student = await db.getStudentById(id);
+    if (!student) {
+      return res.status(404).json({ success: false, message: 'Siswa tidak ditemukan' });
+    }
+    if (student.created_by !== req.user.username) {
+      return res.status(403).json({ success: false, message: 'Akses ditolak.' });
+    }
+    
+    const updated = await db.updateStudentWhatsAppSent(id, true);
+    res.json({ success: true, student: updated });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Gagal memperbarui status WhatsApp: ' + error.message });
   }
 });
 
@@ -323,7 +342,9 @@ app.get('/api/dashboard-summary', requireLogin, async (req, res) => {
             id: student.id,
             name: student.name,
             class_name: student.class_name,
-            remaining_quota: remaining
+            remaining_quota: remaining,
+            parent_whatsapp: student.parent_whatsapp || '',
+            whatsapp_sent: student.whatsapp_sent || false
           });
         }
       }

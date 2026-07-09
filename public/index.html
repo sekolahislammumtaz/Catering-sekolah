@@ -423,13 +423,19 @@
       <form id="student-form">
         <input type="hidden" id="student-id">
         <div class="modal-body">
-          <div class="form-group">
+          <div class="form-group" style="position: relative;">
             <label for="student-name">Nama Siswa</label>
-            <input type="text" id="student-name" placeholder="Nama lengkap siswa" required>
+            <input type="text" id="student-name" placeholder="Nama lengkap siswa" required autocomplete="off">
+            <div id="autocomplete-list" class="autocomplete-dropdown hidden"></div>
           </div>
           <div class="form-group">
             <label for="student-class">Kelas</label>
             <input type="text" id="student-class" placeholder="Contoh: Kelas 1-A, Kelas 5" required>
+          </div>
+          <div class="form-group">
+            <label for="student-parent-whatsapp">No. WhatsApp Orang Tua</label>
+            <input type="text" id="student-parent-whatsapp" placeholder="Contoh: 08123456789" required>
+            <small class="text-muted">Nomor WhatsApp aktif orang tua untuk notifikasi sisa kuota katering.</small>
           </div>
           <div class="form-group">
             <label for="student-start-date">Tanggal Mulai Catering</label>

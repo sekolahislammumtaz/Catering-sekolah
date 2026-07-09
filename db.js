@@ -8,21 +8,6 @@ if (connectionString) {
   connectionString = connectionString.replace('sslmode=require', 'sslmode=verify-full');
 }
 
-if (!connectionString) {
-  console.error('================================================================');
-  console.error('ERROR: DATABASE_URL environment variable is NOT defined!');
-  console.error('Please configure DATABASE_URL in Render\'s Environment tab.');
-  console.error('================================================================');
-} else {
-  try {
-    // Mask password in database URL for safe logging
-    const masked = connectionString.replace(/:([^:@]+)@/, ':******@');
-    console.log(`[Database] Connecting to: ${masked}`);
-  } catch (err) {
-    console.log('[Database] Connecting to database using DATABASE_URL...');
-  }
-}
-
 const pool = new Pool({
   connectionString,
   ssl: connectionString && (connectionString.includes('localhost') || connectionString.includes('127.0.0.1')) ? false : {
@@ -133,10 +118,22 @@ async function initDB() {
         class_name VARCHAR(100) NOT NULL,
         start_date VARCHAR(10) NOT NULL,
         initial_quota INTEGER NOT NULL,
+        parent_whatsapp VARCHAR(50) DEFAULT '',
+        whatsapp_sent BOOLEAN DEFAULT FALSE,
         catering_dates TEXT[] NOT NULL DEFAULT '{}',
         sick_dates TEXT[] NOT NULL DEFAULT '{}',
         created_by VARCHAR(100) NOT NULL
       )
+    `);
+
+    // Add parent_whatsapp column if not exists (for backward compatibility / existing db migrations)
+    await client.query(`
+      ALTER TABLE students ADD COLUMN IF NOT EXISTS parent_whatsapp VARCHAR(50) DEFAULT ''
+    `);
+
+    // Add whatsapp_sent column if not exists
+    await client.query(`
+      ALTER TABLE students ADD COLUMN IF NOT EXISTS whatsapp_sent BOOLEAN DEFAULT FALSE
     `);
 
     // Seed default user mumtaz if users table is empty
@@ -208,7 +205,7 @@ module.exports = {
     const { rows } = await pool.query('SELECT * FROM students WHERE id = $1', [id]);
     return rows[0] || null;
   },
-  addStudent: async (name, class_name, start_date, initial_quota, username) => {
+  addStudent: async (name, class_name, start_date, initial_quota, parent_whatsapp, username) => {
     const { rows: holidays } = await pool.query('SELECT * FROM holidays WHERE created_by = $1', [username]);
     const catering_dates = calculateCateringDates(start_date, parseInt(initial_quota), holidays, []);
     
@@ -218,14 +215,16 @@ module.exports = {
       class_name,
       start_date,
       initial_quota: parseInt(initial_quota),
+      parent_whatsapp: parent_whatsapp || '',
+      whatsapp_sent: false,
       catering_dates,
       sick_dates: [],
       created_by: username
     };
     
     await pool.query(
-      'INSERT INTO students (id, name, class_name, start_date, initial_quota, catering_dates, sick_dates, created_by) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)',
-      [newStudent.id, newStudent.name, newStudent.class_name, newStudent.start_date, newStudent.initial_quota, newStudent.catering_dates, newStudent.sick_dates, newStudent.created_by]
+      'INSERT INTO students (id, name, class_name, start_date, initial_quota, parent_whatsapp, whatsapp_sent, catering_dates, sick_dates, created_by) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)',
+      [newStudent.id, newStudent.name, newStudent.class_name, newStudent.start_date, newStudent.initial_quota, newStudent.parent_whatsapp, newStudent.whatsapp_sent, newStudent.catering_dates, newStudent.sick_dates, newStudent.created_by]
     );
     return newStudent;
   },
@@ -236,6 +235,7 @@ module.exports = {
     
     const name = updateData.name !== undefined ? updateData.name : student.name;
     const class_name = updateData.class_name !== undefined ? updateData.class_name : student.class_name;
+    const parent_whatsapp = updateData.parent_whatsapp !== undefined ? updateData.parent_whatsapp : (student.parent_whatsapp || '');
     
     let start_date = student.start_date;
     let initial_quota = student.initial_quota;
@@ -261,9 +261,27 @@ module.exports = {
       );
     }
     
+    // Reset whatsapp_sent if quota is recalculated (extended)
+    let whatsapp_sent = student.whatsapp_sent || false;
+    if (needsRecalc) {
+      whatsapp_sent = false;
+    }
+    
+    // Allow setting whatsapp_sent explicitly (e.g. from updateStudentWhatsAppSent or custom update data)
+    if (updateData.whatsapp_sent !== undefined) {
+      whatsapp_sent = updateData.whatsapp_sent;
+    }
+    
     const { rows } = await pool.query(
-      'UPDATE students SET name = $1, class_name = $2, start_date = $3, initial_quota = $4, catering_dates = $5 WHERE id = $6 RETURNING *',
-      [name, class_name, start_date, initial_quota, catering_dates, id]
+      'UPDATE students SET name = $1, class_name = $2, start_date = $3, initial_quota = $4, parent_whatsapp = $5, whatsapp_sent = $6, catering_dates = $7 WHERE id = $8 RETURNING *',
+      [name, class_name, start_date, initial_quota, parent_whatsapp, whatsapp_sent, catering_dates, id]
+    );
+    return rows[0];
+  },
+  updateStudentWhatsAppSent: async (id, sent) => {
+    const { rows } = await pool.query(
+      'UPDATE students SET whatsapp_sent = $1 WHERE id = $2 RETURNING *',
+      [sent, id]
     );
     return rows[0];
   },

@@ -56,10 +56,18 @@ async function migrate() {
         class_name VARCHAR(100) NOT NULL,
         start_date VARCHAR(10) NOT NULL,
         initial_quota INTEGER NOT NULL,
+        parent_whatsapp VARCHAR(50) DEFAULT '',
+        whatsapp_sent BOOLEAN DEFAULT FALSE,
         catering_dates TEXT[] NOT NULL DEFAULT '{}',
         sick_dates TEXT[] NOT NULL DEFAULT '{}',
         created_by VARCHAR(100) NOT NULL
       );
+    `);
+
+    // Dynamic column migrations if table already exists
+    await client.query(`
+      ALTER TABLE students ADD COLUMN IF NOT EXISTS parent_whatsapp VARCHAR(50) DEFAULT '';
+      ALTER TABLE students ADD COLUMN IF NOT EXISTS whatsapp_sent BOOLEAN DEFAULT FALSE;
     `);
 
     console.log('Starting migration...');
@@ -101,8 +109,8 @@ async function migrate() {
       console.log(`Migrating ${localData.students.length} students...`);
       for (const s of localData.students) {
         await client.query(
-          'INSERT INTO students (id, name, class_name, start_date, initial_quota, catering_dates, sick_dates, created_by) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name, class_name = EXCLUDED.class_name, start_date = EXCLUDED.start_date, initial_quota = EXCLUDED.initial_quota, catering_dates = EXCLUDED.catering_dates, sick_dates = EXCLUDED.sick_dates, created_by = EXCLUDED.created_by',
-          [s.id, s.name, s.class_name, s.start_date, s.initial_quota, s.catering_dates || [], s.sick_dates || [], s.created_by || 'mumtaz']
+          'INSERT INTO students (id, name, class_name, start_date, initial_quota, parent_whatsapp, whatsapp_sent, catering_dates, sick_dates, created_by) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name, class_name = EXCLUDED.class_name, start_date = EXCLUDED.start_date, initial_quota = EXCLUDED.initial_quota, parent_whatsapp = EXCLUDED.parent_whatsapp, whatsapp_sent = EXCLUDED.whatsapp_sent, catering_dates = EXCLUDED.catering_dates, sick_dates = EXCLUDED.sick_dates, created_by = EXCLUDED.created_by',
+          [s.id, s.name, s.class_name, s.start_date, s.initial_quota, s.parent_whatsapp || '', s.whatsapp_sent || false, s.catering_dates || [], s.sick_dates || [], s.created_by || 'mumtaz']
         );
       }
     }
