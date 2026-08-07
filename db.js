@@ -237,28 +237,46 @@ module.exports = {
     const class_name = updateData.class_name !== undefined ? updateData.class_name : student.class_name;
     const parent_whatsapp = updateData.parent_whatsapp !== undefined ? updateData.parent_whatsapp : (student.parent_whatsapp || '');
     
-    let start_date = student.start_date;
-    let initial_quota = student.initial_quota;
     let needsRecalc = false;
+    let newStartDate = student.start_date;
+    let newQuota = student.initial_quota;
     
     if (updateData.start_date !== undefined && updateData.start_date !== student.start_date) {
-      start_date = updateData.start_date;
+      newStartDate = updateData.start_date;
       needsRecalc = true;
     }
     if (updateData.initial_quota !== undefined && parseInt(updateData.initial_quota) !== student.initial_quota) {
-      initial_quota = parseInt(updateData.initial_quota);
+      newQuota = parseInt(updateData.initial_quota);
       needsRecalc = true;
     }
     
-    let catering_dates = student.catering_dates;
+    let catering_dates = student.catering_dates || [];
+    let finalStartDate = student.start_date;
+    let finalQuota = student.initial_quota;
+    
     if (needsRecalc) {
       const { rows: holidays } = await pool.query('SELECT * FROM holidays WHERE created_by = $1', [student.created_by]);
-      catering_dates = calculateCateringDates(
-        start_date, 
-        initial_quota, 
-        holidays, 
+      
+      // Preserve past catering dates prior to newStartDate
+      const pastDates = (student.catering_dates || []).filter(d => d < newStartDate);
+      
+      // Calculate new active dates starting from newStartDate for newQuota days
+      const newActiveDates = calculateCateringDates(
+        newStartDate,
+        newQuota,
+        holidays,
         student.sick_dates || []
       );
+      
+      // Combine past dates and new active dates
+      const combinedSet = new Set([...pastDates, ...newActiveDates]);
+      catering_dates = Array.from(combinedSet).sort();
+      
+      // Final start date is the earliest date in catering_dates
+      finalStartDate = catering_dates.length > 0 ? catering_dates[0] : newStartDate;
+      
+      // Final quota is total count of all catering dates (past + new)
+      finalQuota = catering_dates.length;
     }
     
     // Reset whatsapp_sent if quota is recalculated (extended)
@@ -274,7 +292,7 @@ module.exports = {
     
     const { rows } = await pool.query(
       'UPDATE students SET name = $1, class_name = $2, start_date = $3, initial_quota = $4, parent_whatsapp = $5, whatsapp_sent = $6, catering_dates = $7 WHERE id = $8 RETURNING *',
-      [name, class_name, start_date, initial_quota, parent_whatsapp, whatsapp_sent, catering_dates, id]
+      [name, class_name, finalStartDate, finalQuota, parent_whatsapp, whatsapp_sent, catering_dates, id]
     );
     return rows[0];
   },

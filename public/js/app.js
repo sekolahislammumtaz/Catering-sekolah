@@ -199,13 +199,25 @@ function setupEventListeners() {
       const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
       document.getElementById('student-start-date').value = todayStr;
     } else {
-      document.getElementById('modal-title').textContent = 'Edit Catering Siswa';
       document.getElementById('student-id').value = student.id;
       document.getElementById('student-name').value = student.name;
       document.getElementById('student-class').value = student.class_name;
       document.getElementById('student-parent-whatsapp').value = student.parent_whatsapp || '';
-      document.getElementById('student-start-date').value = student.start_date;
-      document.getElementById('student-quota').value = student.initial_quota;
+      
+      const now = new Date();
+      const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+      
+      if (student.remaining_quota === 0) {
+        document.getElementById('modal-title').textContent = 'Edit / Perpanjang Catering Siswa';
+        document.getElementById('student-start-date').value = todayStr;
+        document.getElementById('student-quota').value = '';
+        document.getElementById('student-quota').placeholder = 'Masukkan kuota baru (misal: 5)';
+      } else {
+        document.getElementById('modal-title').textContent = 'Edit Catering Siswa';
+        document.getElementById('student-start-date').value = student.start_date;
+        document.getElementById('student-quota').value = student.initial_quota;
+        document.getElementById('student-quota').placeholder = 'Jumlah hari catering';
+      }
     }
   };
 
