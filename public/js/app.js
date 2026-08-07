@@ -632,21 +632,19 @@ function renderDashboardSummary() {
           cleanPhone = '62' + cleanPhone;
         }
 
-        const templateText = `Assalamu'alaikum warahmatullahi wabarakatuh.
+        const templateText = `*Bismillāh.*
 
-Ayah/Bunda wali dari Ananda ${studentName} yang kami hormati,
+*Assalāmu'alaikum warahmatullāhi wabarakātuh.*
 
-Semoga Ayah/Bunda senantiasa diberikan kesehatan, keberkahan, dan kemudahan dalam setiap aktivitas.
+Ayah/Bunda wali dari Ananda ${studentName} yang semoga senantiasa dirahmati Allah Ta'ala.
 
-Dengan hormat, kami informasikan bahwa layanan Catering Sekolah Ananda berakhir pada hari ini.
+Kami menginformasikan bahwa masa layanan *Katering Sekolah* Ananda telah berakhir pada hari ini.
 
-Apabila Ayah/Bunda berkenan untuk melanjutkan layanan Catering Sekolah, kami memohon kesediaannya untuk melakukan pembayaran melalui QRIS yang kami lampirkan di bawah ini.
+Apabila Ayah/Bunda berkenan melanjutkan layanan catering, mohon melakukan pembayaran melalui *QRIS* yang kami lampirkan di bawah ini.
 
-Setelah pembayaran dilakukan, mohon berkenan mengirimkan bukti pembayaran kepada admin agar layanan catering Ananda dapat kami lanjutkan tanpa kendala.
+Setelah melakukan pembayaran, mohon mengirimkan bukti transfer kepada admin agar layanan catering Ananda dapat kami lanjutkan.
 
-Demikian informasi yang dapat kami sampaikan. Atas perhatian dan kerja sama Ayah/Bunda, kami ucapkan Jazakumullahu khairan katsiran.
-
-Wassalamu'alaikum warahmatullahi wabarakatuh.`;
+*Jazākumullāhu khair* atas perhatian dan kerja sama Ayah/Bunda.`;
 
         const waUrl = `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(templateText)}`;
         
