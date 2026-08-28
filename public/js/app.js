@@ -613,7 +613,9 @@ function renderDashboardSummary() {
 
     // Add handlers to send wa buttons
     tableBody.querySelectorAll('.send-wa-btn').forEach(btn => {
-      btn.addEventListener('click', async () => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        
         const studentId = btn.getAttribute('data-id');
         const studentName = btn.getAttribute('data-name');
         const parentPhone = btn.getAttribute('data-phone');
@@ -648,19 +650,24 @@ Setelah melakukan pembayaran, mohon mengirimkan bukti transfer kepada admin agar
 
         const waUrl = `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(templateText)}`;
         
-        // Open WhatsApp in new tab
-        window.open(waUrl, '_blank');
+        // Open WhatsApp via anchor tag to bypass strict popup blockers (especially on Safari/Mobile)
+        const a = document.createElement('a');
+        a.href = waUrl;
+        a.target = '_blank';
+        a.rel = 'noopener noreferrer';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
 
-        // Mark as sent in DB & update UI
-        try {
-          await API.markWhatsAppSent(studentId);
+        // Mark as sent in DB & update UI asynchronously
+        API.markWhatsAppSent(studentId).then(() => {
           btn.className = 'btn btn-wa-success btn-sm send-wa-btn';
           btn.innerHTML = '<i class="fa-solid fa-circle-check"></i> WA Terkirim';
           // Update local state silently
-          await refreshDataSilently();
-        } catch (err) {
+          return refreshDataSilently();
+        }).catch(err => {
           console.error('Gagal memperbarui status WhatsApp:', err);
-        }
+        });
       });
     });
   }
