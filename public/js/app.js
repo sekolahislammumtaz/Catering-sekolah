@@ -670,8 +670,6 @@ function renderDashboardSummary() {
           cleanPhone = '62' + cleanPhone;
         }
 
-        const qrisImageUrl = `${window.location.origin}/katering.jpg`;
-
         const templateText = `*Bismillāh.*
 
 *Assalāmu'alaikum warahmatullāhi wabarakātuh.*
@@ -680,11 +678,9 @@ Ayah/Bunda wali dari Ananda ${studentName} yang semoga senantiasa dirahmati Alla
 
 Kami menginformasikan bahwa masa layanan *Katering Sekolah* Ananda telah berakhir pada hari ini.
 
-Apabila Ayah/Bunda berkenan melanjutkan layanan catering, mohon melakukan pembayaran Rp.180.000 melalui QRIS yang kami lampirkan di bawah ini:
+Apabila Ayah/Bunda berkenan melanjutkan layanan katering, mohon melakukan pembayaran Rp.180.000 melalui QRIS yang kami lampirkan.
 
-${qrisImageUrl}
-
-Setelah melakukan pembayaran, mohon mengirimkan bukti transfer kepada admin agar layanan catering Ananda dapat kami lanjutkan.
+Setelah melakukan pembayaran, mohon mengirimkan bukti transfer kepada admin agar layanan katering Ananda dapat kami lanjutkan.
 
 *Jazākumullāhu khair* atas perhatian dan kerja sama Ayah/Bunda.`;
 
