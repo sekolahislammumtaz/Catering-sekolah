@@ -56,6 +56,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   
   // Setup Event Listeners
   setupEventListeners();
+
+  // Preload QRIS image for clipboard
+  initQrisClipboard();
 });
 
 function updateHeaderDate() {
@@ -130,6 +133,83 @@ async function refreshDataSilently() {
   }
 }
 
+// QRIS Clipboard handling
+let cachedQrisPngBlob = null;
+
+function initQrisClipboard() {
+  const img = new Image();
+  img.crossOrigin = 'anonymous';
+  img.src = '/katering.jpg';
+  img.onload = () => {
+    try {
+      const canvas = document.createElement('canvas');
+      canvas.width = img.naturalWidth;
+      canvas.height = img.naturalHeight;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0);
+      canvas.toBlob((blob) => {
+        if (blob) cachedQrisPngBlob = blob;
+      }, 'image/png');
+    } catch (e) {
+      console.warn('Canvas conversion for QRIS failed:', e);
+    }
+  };
+}
+
+function copyQrisImageToClipboard() {
+  if (cachedQrisPngBlob && navigator.clipboard && navigator.clipboard.write) {
+    try {
+      navigator.clipboard.write([
+        new ClipboardItem({ 'image/png': cachedQrisPngBlob })
+      ]).then(() => {
+        console.log('Gambar QRIS berhasil disalin ke clipboard');
+      }).catch(err => {
+        console.warn('Clipboard write failed:', err);
+      });
+    } catch (e) {
+      console.warn('Clipboard write exception:', e);
+    }
+  }
+}
+
+// Open Student Modal (Add or Edit)
+function openStudentModal(mode, student = null) {
+  const studentModal = document.getElementById('student-modal');
+  studentModal.classList.remove('hidden');
+  document.getElementById('student-form').reset();
+  
+  const now = new Date();
+  const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+
+  if (mode === 'add') {
+    document.getElementById('modal-title').textContent = 'Tambah Catering Siswa';
+    document.getElementById('student-id').value = '';
+    document.getElementById('student-name').value = '';
+    document.getElementById('student-class').value = '';
+    document.getElementById('student-parent-whatsapp').value = '';
+    document.getElementById('student-start-date').value = todayStr;
+    document.getElementById('student-quota').value = '';
+    document.getElementById('student-quota').placeholder = 'Jumlah hari catering';
+  } else {
+    document.getElementById('modal-title').textContent = 'Edit Catering Siswa';
+    document.getElementById('student-id').value = student.id;
+    document.getElementById('student-name').value = student.name;
+    document.getElementById('student-class').value = student.class_name;
+    document.getElementById('student-parent-whatsapp').value = student.parent_whatsapp || '';
+    
+    // Tanggal mulai catering di-set ke tanggal hari saat ini (current date)
+    document.getElementById('student-start-date').value = todayStr;
+    
+    // Kuota catering di-set ke sisa kuota catering siswa saat ini
+    const remaining = student.remaining_quota !== undefined 
+      ? student.remaining_quota 
+      : (student.catering_dates || []).filter(d => d >= todayStr).length;
+
+    document.getElementById('student-quota').value = remaining;
+    document.getElementById('student-quota').placeholder = 'Jumlah hari catering';
+  }
+}
+
 // Set up UI listeners
 function setupEventListeners() {
   // Logout
@@ -186,42 +266,7 @@ function setupEventListeners() {
   const cancelStudentModal = document.getElementById('cancel-student-modal');
   const studentForm = document.getElementById('student-form');
 
-  const openStudentModalFn = (mode, student = null) => {
-    studentModal.classList.remove('hidden');
-    document.getElementById('student-form').reset();
-    
-    if (mode === 'add') {
-      document.getElementById('modal-title').textContent = 'Tambah Catering Siswa';
-      document.getElementById('student-id').value = '';
-      document.getElementById('student-parent-whatsapp').value = '';
-      // Default start date to today's school date (formatted local YYYY-MM-DD)
-      const now = new Date();
-      const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-      document.getElementById('student-start-date').value = todayStr;
-    } else {
-      document.getElementById('student-id').value = student.id;
-      document.getElementById('student-name').value = student.name;
-      document.getElementById('student-class').value = student.class_name;
-      document.getElementById('student-parent-whatsapp').value = student.parent_whatsapp || '';
-      
-      const now = new Date();
-      const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-      
-      if (student.remaining_quota === 0) {
-        document.getElementById('modal-title').textContent = 'Edit / Perpanjang Catering Siswa';
-        document.getElementById('student-start-date').value = todayStr;
-        document.getElementById('student-quota').value = '';
-        document.getElementById('student-quota').placeholder = 'Masukkan kuota baru (misal: 5)';
-      } else {
-        document.getElementById('modal-title').textContent = 'Edit Catering Siswa';
-        document.getElementById('student-start-date').value = student.start_date;
-        document.getElementById('student-quota').value = student.initial_quota;
-        document.getElementById('student-quota').placeholder = 'Jumlah hari catering';
-      }
-    }
-  };
-
-  addStudentBtn.addEventListener('click', () => openStudentModalFn('add'));
+  addStudentBtn.addEventListener('click', () => openStudentModal('add'));
   closeStudentModal.addEventListener('click', () => studentModal.classList.add('hidden'));
   cancelStudentModal.addEventListener('click', () => studentModal.classList.add('hidden'));
   
@@ -597,16 +642,7 @@ function renderDashboardSummary() {
         const studentId = btn.getAttribute('data-id');
         const student = state.students.find(s => s.id === studentId);
         if (student) {
-          const studentModal = document.getElementById('student-modal');
-          studentModal.classList.remove('hidden');
-          document.getElementById('student-form').reset();
-          document.getElementById('modal-title').textContent = 'Tambah / Perpanjang Kuota';
-          document.getElementById('student-id').value = student.id;
-          document.getElementById('student-name').value = student.name;
-          document.getElementById('student-class').value = student.class_name;
-          document.getElementById('student-parent-whatsapp').value = student.parent_whatsapp || '';
-          document.getElementById('student-start-date').value = student.start_date;
-          document.getElementById('student-quota').value = student.initial_quota;
+          openStudentModal('edit', student);
         }
       });
     });
@@ -634,6 +670,8 @@ function renderDashboardSummary() {
           cleanPhone = '62' + cleanPhone;
         }
 
+        const qrisImageUrl = `${window.location.origin}/katering.jpg`;
+
         const templateText = `*Bismillāh.*
 
 *Assalāmu'alaikum warahmatullāhi wabarakātuh.*
@@ -642,11 +680,16 @@ Ayah/Bunda wali dari Ananda ${studentName} yang semoga senantiasa dirahmati Alla
 
 Kami menginformasikan bahwa masa layanan *Katering Sekolah* Ananda telah berakhir pada hari ini.
 
-Apabila Ayah/Bunda berkenan melanjutkan layanan catering, mohon melakukan pembayaran melalui *QRIS* yang kami lampirkan di bawah ini.
+Apabila Ayah/Bunda berkenan melanjutkan layanan catering, mohon melakukan pembayaran Rp.180.000 melalui QRIS yang kami lampirkan di bawah ini:
+
+${qrisImageUrl}
 
 Setelah melakukan pembayaran, mohon mengirimkan bukti transfer kepada admin agar layanan catering Ananda dapat kami lanjutkan.
 
 *Jazākumullāhu khair* atas perhatian dan kerja sama Ayah/Bunda.`;
+
+        // Copy QRIS image to clipboard for instant pasting (Ctrl+V) in WhatsApp
+        copyQrisImageToClipboard();
 
         const waUrl = `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(templateText)}`;
         
@@ -881,16 +924,7 @@ function renderStudentList() {
     btn.addEventListener('click', () => {
       const student = state.students.find(s => s.id === btn.getAttribute('data-id'));
       if (student) {
-        const studentModal = document.getElementById('student-modal');
-        studentModal.classList.remove('hidden');
-        document.getElementById('student-form').reset();
-        document.getElementById('modal-title').textContent = 'Edit Catering Siswa';
-        document.getElementById('student-id').value = student.id;
-        document.getElementById('student-name').value = student.name;
-        document.getElementById('student-class').value = student.class_name;
-        document.getElementById('student-parent-whatsapp').value = student.parent_whatsapp || '';
-        document.getElementById('student-start-date').value = student.start_date;
-        document.getElementById('student-quota').value = student.initial_quota;
+        openStudentModal('edit', student);
       }
     });
   });
