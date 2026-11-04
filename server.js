@@ -469,6 +469,19 @@ app.put('/api/users/:id/reset-password', requireLogin, requireAdmin, async (req,
   }
 });
 
+// Public Static Routes (accessible without authentication)
+app.get(['/login', '/login.html'], (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'login.html'));
+});
+
+app.get(['/privacy', '/privacy.html'], (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'privacy.html'));
+});
+
+app.get(['/terms', '/terms.html'], (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'terms.html'));
+});
+
 // Fallback to login or index for unknown routes
 app.get('*', (req, res, next) => {
   // If requesting api routes, pass to next handlers (already handled above, will 404)

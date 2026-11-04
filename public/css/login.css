@@ -247,6 +247,31 @@ input:focus + .input-icon {
   color: var(--color-text-muted);
 }
 
+.login-legal-links {
+  margin-top: 10px;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.login-legal-links a {
+  color: var(--color-gold);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.login-legal-links a:hover {
+  color: var(--color-gold-hover);
+  text-decoration: underline;
+}
+
+.login-legal-links .divider {
+  color: var(--color-text-muted);
+}
+
 /* Animations */
 @keyframes slideIn {
   from {
